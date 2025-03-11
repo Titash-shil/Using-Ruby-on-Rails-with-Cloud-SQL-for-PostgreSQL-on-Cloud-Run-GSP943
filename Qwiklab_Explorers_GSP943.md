@@ -10,11 +10,11 @@
 - ### Copy & Run in Cloud Shell terminal :
 
 ```
-curl -LO raw.githubusercontent.com/Titash-shil/Cloud-Operations-for-GKE-GSP497/refs/heads/main/qwiklab_explorers_ts_gsp497.sh
+curl -LO raw.githubusercontent.com/Titash-shil/Using-Ruby-on-Rails-with-Cloud-SQL-for-PostgreSQL-on-Cloud-Run-GSP943/refs/heads/main/qwiklab_explorers_gsp943.sh
 
-sudo chmod +x qwiklab_explorers_ts_gsp497.sh
+sudo chmod +x qwiklab_explorers_gsp943.sh
 
-./qwiklab_explorers_ts_gsp497.sh
+./qwiklab_explorers_gsp943.sh
 ```
 
 ---
