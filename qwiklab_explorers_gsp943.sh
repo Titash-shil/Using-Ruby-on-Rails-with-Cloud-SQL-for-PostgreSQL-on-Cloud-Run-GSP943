@@ -1,7 +1,5 @@
 #!/bin/bash
-PURPLE="\[\033[0;35m\]"
-GREEN="\[\033[0;32m\]"
-BLUE="\[\033[0;34m\]"
+GREEN='\033[0;32m'
 NC='\033[0m' 
 pattern=(
 "**********************************************************"
@@ -12,7 +10,7 @@ pattern=(
 )
 for line in "${pattern[@]}"
 do
-    echo -e "${PURPLE}${line}${NC}"
+    echo -e "${GREEN}${line}${NC}"
 done
 gcloud auth list
 git clone https://github.com/GoogleCloudPlatform/ruby-docs-samples.git
@@ -94,4 +92,3 @@ gcloud builds submit --config cloudbuild.yaml \
      --allow-unauthenticated \
      --max-instances=3
 
-     echo "${GREEN}Congratulations${RESET}" "${BLUE}for${RESET}" "${GREEN}Completing the Lab !!!${RESET}"
