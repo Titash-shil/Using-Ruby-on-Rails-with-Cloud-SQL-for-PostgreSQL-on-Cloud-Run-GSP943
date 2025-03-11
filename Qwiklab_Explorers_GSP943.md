@@ -8,6 +8,9 @@
 ---
 
 - ### Copy & Run in Cloud Shell terminal :
+```
+export REGION=
+```
 
 ```
 curl -LO raw.githubusercontent.com/Titash-shil/Using-Ruby-on-Rails-with-Cloud-SQL-for-PostgreSQL-on-Cloud-Run-GSP943/refs/heads/main/qwiklab_explorers_gsp943.sh
