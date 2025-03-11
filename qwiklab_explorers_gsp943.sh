@@ -1,34 +1,31 @@
-
-
-echo ""
-echo ""
-echo "Please export the values."
-
-
-# Prompt user to input three regions
-read -p "Enter REGION: " REGION
-
-
-
+#!/bin/bash
+PURPLE="\[\033[0;35m\]"
+GREEN="\[\033[0;32m\]"
+BLUE="\[\033[0;34m\]"
+NC='\033[0m' 
+pattern=(
+"**********************************************************"
+"**                 S U B S C R I B E  TO                **"
+"**                   QwikLab Explorers                  **"
+"**                 Like, Comment & Share                **"         
+"**********************************************************"
+)
+for line in "${pattern[@]}"
+do
+    echo -e "${PURPLE}${line}${NC}"
+done
 gcloud auth list
 git clone https://github.com/GoogleCloudPlatform/ruby-docs-samples.git
-
 cd ruby-docs-samples/run/rails
 bundle install
-
 INSTANCE_NAME=postgres-instance
 DATABASE_NAME=mydatabase
-
-
 gcloud services enable secretmanager.googleapis.com
 gcloud services enable run.googleapis.com
-
-
 gcloud sql instances create $INSTANCE_NAME \
   --database-version POSTGRES_12 \
   --tier db-g1-small \
   --region $REGION
-
 gcloud sql databases create $DATABASE_NAME \
   --instance $INSTANCE_NAME
 
@@ -39,37 +36,15 @@ cat /dev/urandom | LC_ALL=C tr -dc '[:alpha:]'| fold -w 50 | head -n1 > dbpasswo
 
 BUCKET_NAME=$DEVSHELL_PROJECT_ID-ruby
 gsutil mb -l $REGION gs://$BUCKET_NAME
-
 gsutil iam ch allUsers:objectViewer gs://$BUCKET_NAME
-
-
 PASSWORD="$(cat ~/ruby-docs-samples/run/rails/dbpassword)"
 
-
-
-# Make sure PASSWORD is set
 if [ -z "$PASSWORD" ]; then
-  echo "PASSWORD environment variable is not set."
+  echo ""
   exit 1
 fi
 
-# Decrypt, add the line with the actual password, and re-encrypt
 EDITOR="sed -i -e '\$a\\gcp:\n  db_password: $PASSWORD'" bin/rails credentials:edit
-
-
-
-# bin/rails credentials:show > temp_credentials.yml
-
-
-# cat <<EOF >> temp_credentials.yml
-
-# gcp:
-#   db_password: $PASSWORD
-# EOF
-
-# # Step 3: Re-encrypt the credentials file with the new content
-# EDITOR="cat temp_credentials.yml" bin/rails credentials:edit
-
 
 gcloud secrets create rails_secret --data-file config/master.key
 
@@ -102,15 +77,21 @@ gcloud projects add-iam-policy-binding $DEVSHELL_PROJECT_ID \
 RUBY_VERSION=$(ruby -v | cut -d ' ' -f2 | cut -c1-3)
 sed -i "/FROM/c\FROM ruby:$RUBY_VERSION-buster" Dockerfile
 
+gcloud artifacts repositories create cloud-run-source-deploy --repository-format=docker --location=$REGION
+
+gcloud services enable run.googleapis.com
+
 APP_NAME=myrubyapp
 gcloud builds submit --config cloudbuild.yaml \
     --substitutions _SERVICE_NAME=$APP_NAME,_INSTANCE_NAME=$INSTANCE_NAME,_REGION=$REGION,_SECRET_NAME=rails_secret --timeout=20m
 
+
  gcloud run deploy $APP_NAME \
      --platform managed \
      --region $REGION \
-     --image gcr.io/$DEVSHELL_PROJECT_ID/$APP_NAME \
+     --image $REGION-docker.pkg.dev/$DEVSHELL_PROJECT_ID/cloud-run-source-deploy/$APP_NAME \
      --add-cloudsql-instances $DEVSHELL_PROJECT_ID:$REGION:$INSTANCE_NAME \
      --allow-unauthenticated \
-     --max-instances=3 \
-     --quiet
+     --max-instances=3
+
+     echo "${GREEN}Congratulations${RESET}" "${BLUE}for${RESET}" "${GREEN}Completing the Lab !!!${RESET}"
